@@ -21,29 +21,11 @@ for f in range(0, 300, 25):
     response.encoding = 'utf-8'
     # 页面源码
     html = response.text
-    # print(html)
     dl = re.findall(r'td class="title">([\d\D]*?)</td>', html, re.S)
-    # print(dl[1])
-    # chapter_info_list = re.findall(r'http[s]?://(?:[a-zA-Z]|[0-9]|[$-_@.&+]|[!*\(\),]|(?:%[0-9a-fA-F][0-9a-fA-F]))+"',dl[1],re.S)
-
     # //提取名称
     for i in range(0, dl.__len__()):
         chapter_info_list = re.findall(r'<a href="([\d\D]*?)" title="', dl[i], re.S)
         chapter_info_lists = re.findall(r'title="([\d\D]*?)" class="', dl[i], re.S)
-        # seg_list_exact = jieba.cut(chapter_info_lists[0], cut_all=False)
-        # list.append(chapter_info_lists)
-        # for word in seg_list_exact:
-        #     print(word)
         f1.write(chapter_info_list[0] + "\t" +chapter_info_lists[0])
         f1.write('\n')
-        # print(re.findall(r'\t|\n|\.|-|:|;|\)|\(|\?|"', chapter_info_lists[0], re.S))
-        # print(chapter_info_list[0] + "\t" + chapter_info_lists[0])
-    # print(chapter_info_list[0] + "\t" + chapter_info_lists[0])
     time.sleep(10)
-    # url = chapter_info_list[0]
-    # response = requests.get(url, timeout=30, headers=headers)
-    # response.encoding = 'utf-8'
-    # # 页面源码
-    # html = response.text
-    # nerong = re.findall(r'<class="topic-richtext"([\d\D]*?)" title="', html, re.S)
-    # print(html)

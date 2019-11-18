@@ -1,12 +1,12 @@
 # -*- coding: utf-8 -*-
 import re
+import time
+
 import requests
-from urllib import request
-from bs4 import BeautifulSoup
 from lxml import etree
 
 
-def read_jdbook(url, head):
+def read_jd_book(url, head):
     # 模拟浏览器发送http请求
     response = requests.get(url, timeout=30, headers=head)
     response.encoding = 'utf-8'
@@ -17,32 +17,23 @@ def read_jdbook(url, head):
     for i in range(1, 31):
         try:
             result = re.split(r":", content_book[i - 1])[1]
-            content_book[i-1] = result
+            content_book[i - 1] = result
         except Exception as e:
             continue
-    # for i in content_book:
-        http = "https:"+content_book[0]
-        read_sonBook(http,head)
+    for i in content_book:
+        http = "https:" + i
+        content = read_son_book(http, head)
+        time.sleep(2)
 
-    # for i in range(len(content)):
-    #     print(content_book[i].tag)
-    #     print(content_book[i].attrib)
-    #     print(content_book[i].text)
 
-def read_sonBook(url, head):
-    response = requests.get(url, timeout=30, headers=head)
-    response.encoding = 'utf-8'
+def read_son_book(urls, headers):
+    response = requests.get(urls, timeout=30, headers=headers)
+    response.encoding = 'gbk'
     # 页面源码
     html = response.text
     content = etree.HTML(html)
-    # content_book = content.xpath('//div[@class="w"]/div[@id="product-intro"]/div['
-    #                              '@class="m-item-inner"]/div[@id="itemInfo"]/div[@id="choose"]/div['
-    #                              '@id="choose-attrs"]/div[@id="choose-attr-1"]/div[@class="dd"]/div[@class="item  '
-    #                              'selected"]/a/i')
-    content_book = content.xpath('//div[@class="w"]/div[@id="product-intro"]/div[@id="preview"]/div['
-                                 '@id=id="spec-n1"]/img/@alt')
-    print(content_book)
-    # content = etree.HTML(html)
+    return content.xpath('//head/title/text()')[0]
+
 
 if __name__ == '__main__':
     head = {
@@ -50,4 +41,4 @@ if __name__ == '__main__':
                       'Chrome/66.0.3359.139 Safari/537.36',
     }
     url = "https://search.jd.com/Search?keyword=%E6%9E%81%E7%AE%80%E7%94%9F%E6%B4%BB%E4%B9%A6&enc=utf-8"
-    read_jdbook(url, head)
+    read_jd_book(url, head)
