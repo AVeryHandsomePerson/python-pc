@@ -3,7 +3,7 @@
 import pandas as pd
 import pymysql as pymysql
 
-dbconn = pymysql.connect(host='60.205.168.159', database='pc', user='root', password='ljh')
+dbconn = pymysql.connect(host='', database='', user='', password='')
 sql = 'select * from demo'
 a = pd.read_sql(sql, dbconn)
 b = a.head()
