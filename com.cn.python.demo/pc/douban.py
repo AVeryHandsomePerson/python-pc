@@ -29,3 +29,5 @@ for f in range(0, 300, 25):
         f1.write(chapter_info_list[0] + "\t" +chapter_info_lists[0])
         f1.write('\n')
     time.sleep(10)
+def A():
+    print(1)

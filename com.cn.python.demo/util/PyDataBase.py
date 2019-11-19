@@ -1,9 +1,5 @@
 # -*- coding: utf-8 -*-
 
-import pandas as pd
-import pymysql as pymysql
-from pandas import DataFrame, Series
-
 # dbconn = pymysql.connect(host='60.205.168.159', database='pc', user='root', password='ljh')
 
 
