@@ -20,10 +20,13 @@ def read_jd_book(url, head):
             content_book[i - 1] = result
         except Exception as e:
             continue
+    list = []
     for i in content_book:
         http = "https:" + i
-        content = read_son_book(http, head)
+        list.append(read_son_book(http, head))
         time.sleep(2)
+        print('----------%s' % '运行中')
+    return list
 
 
 def read_son_book(urls, headers):
@@ -32,7 +35,10 @@ def read_son_book(urls, headers):
     # 页面源码
     html = response.text
     content = etree.HTML(html)
-    return content.xpath('//head/title/text()')[0]
+    # book_name = re.findall(r'《([\d\D]*?)》', content.xpath('//head/title/text()')[0], re.S)[0]
+    # book_writer = re.findall(r'\(([\d\D]*?)\)', content.xpath('//head/title/text()')[0], re.S)[0]
+    print(content.xpath('//head/title/text()')[0])
+    return ''
 
 
 if __name__ == '__main__':
@@ -40,5 +46,7 @@ if __name__ == '__main__':
         'user-agent': 'Mozilla/5.0 (Windows NT 6.1; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) '
                       'Chrome/66.0.3359.139 Safari/537.36',
     }
-    url = "https://search.jd.com/Search?keyword=%E6%9E%81%E7%AE%80%E7%94%9F%E6%B4%BB%E4%B9%A6&enc=utf-8"
-    read_jd_book(url, head)
+    url = "https://search.jd.com/Search?keyword=%E6%9E%81%E7%AE%80%E7%94%9F%E6%B4%BB%E4%B9%A6&enc=utf-8&psort=4&page=3"
+    ben = read_jd_book(url, head)
+
+    print(len(ben))
