@@ -1,3 +1,4 @@
+C:\Users\ljh\AppData\Local\Programs\Python\Python38\python.exe D:/biancheng/python/python-pc/com.cn.python.demo/pc/douban.py
 洗漱台够不够极简（镜柜里也没东西）
 你们极简后还剩下哪几支口红
 断舍离 轻装简行

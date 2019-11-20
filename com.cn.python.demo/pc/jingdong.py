@@ -6,7 +6,36 @@ import requests
 import time
 from lxml import etree
 
-
+proxies = {
+'http': '58.218.92.81:8314',
+'http': '58.218.92.173:5257',
+'http': '58.218.92.173:2023',
+'http': '58.218.92.172:8842',
+'http': '58.218.92.172:7091',
+'http': '58.218.92.171:8124',
+'http': '58.218.92.170:3671',
+'http': '58.218.92.81:8895',
+'http': '58.218.92.81:6774',
+'http': '58.218.92.171:2105',
+'http': '58.218.92.171:6379',
+'http': '58.218.92.171:3828',
+'http': '58.218.92.81:2815',
+'http': '58.218.92.174:4580',
+'http': '58.218.92.173:9966',
+'http': '58.218.92.173:8415',
+'http': '58.218.92.170:6208',
+'http': '58.218.92.172:3539',
+'http': '58.218.92.170:7980',
+'http': '58.218.92.172:4487',
+'http': '58.218.92.167:9754',
+'http': '58.218.92.86:9958',
+'http': '58.218.92.167:9660',
+'http': '58.218.92.86:9547',
+'http': '58.218.92.167:9660',
+'http': '58.218.92.86:9547',
+'http': '58.218.92.167:9754',
+'http': '58.218.92.86:9958'
+}
 class DatabaseAccess():
     # 初始化属性
     def __init__(self):
@@ -51,7 +80,7 @@ class DatabaseAccess():
 
 
 def get_html(urls, headers, bm):
-    response = requests.get(urls, timeout=30, headers=headers)
+    response = requests.get(urls, timeout=100, proxies=proxies, headers=headers)
     if bm == 'GBK':
         response.encoding = 'GBK'
     else:
@@ -62,7 +91,7 @@ def get_html(urls, headers, bm):
 
 
 def read_son_book(urls, headers, db, dt):
-    response = requests.get(urls, timeout=30, headers=headers)
+    response = requests.get(urls, timeout=100,headers=headers)
     response.encoding = 'gbk'
     # 页面源码
     html = response.text
@@ -76,15 +105,12 @@ def read_son_book(urls, headers, db, dt):
         book_writer = re.findall(r'\(([\d\D]*?)\)', content.xpath('string(//head/title)'), re.S)[0]
     except Exception as e:
         book_writer = content.xpath('string(//div[@class="p-author"]/a)')
-    db.linesinsert(book_name, book_writer, urls, product_count, dt)
+    print(book_name)
+    # db.linesinsert(book_name, book_writer, urls, product_count, dt)
 
 
 def read_jd_book(url, head):
     # 模拟浏览器发送http请求
-    # response = requests.get(url, timeout=30, headers=head)
-    # response.encoding = 'utf-8'
-    # # 页面源码
-    # html = response.text
     content = etree.HTML(get_html(url, head, 'utf-8'))
     content_book = content.xpath('//div[@class="gl-i-wrap"]/div[@class="p-img"]/a/@href')
     for i in range(1, 31):
@@ -100,7 +126,8 @@ def read_jd_book(url, head):
         http = "https:" + i
         read_son_book(http, head, db, dt)
         time.sleep(5)
-        print('----------%s第%s' % '运行中')
+    time.sleep(10)
+    print('----------运行中')
 
 
 if __name__ == '__main__':
@@ -109,7 +136,8 @@ if __name__ == '__main__':
                       'Chrome/66.0.3359.139 Safari/537.36',
     }
     i = 1
-    for i in range(1, 12, 2):
+    for i in range(1, 20, 2):
+        print(i)
         url = "https://search.jd.com/Search?keyword=%E6%9E%81%E7%AE%80%E7%94%9F%E6%B4%BB%E4%B9%A6&enc=utf-8" \
               "&psort=4&page=" + str(i)
         read_jd_book(url, head)

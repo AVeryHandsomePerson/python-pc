@@ -1,71 +1,58 @@
-# -*- coding: utf-8 -*-
-import pymysql
+
 import requests
+from lxml import etree
 
-
-class DatabaseAccess():
-    # 初始化属性
-    def __init__(self):
-        self.__db_host = "60.205.168.159"
-        self.__db_port = 3306
-        self.__db_user = "root"
-        self.__db_password = "123456"
-        self.__db_database = "pc"
-
-    # 链接数据库
-    def isConnectionOpen(self):
-        self.__db = pymysql.connect(
-            host=self.__db_host,
-            port=self.__db_port,
-            user=self.__db_user,
-            password=self.__db_password,
-            database=self.__db_database,
-            charset='utf8'
-        )
-
-    # 插入数据
-    def linesinsert(self, book_name, witer_name, url, product_count, dt):
+# proxies = {
+#     'http': '58.218.92.81:8314',
+#     'http': '58.218.92.173:5257',
+#     'http': '58.218.92.173:2023',
+#     'http': '58.218.92.172:8842',
+#     'http': '58.218.92.172:7091',
+#     'http': '58.218.92.171:8124',
+#     'http': '58.218.92.170:3671',
+#     'http': '58.218.92.81:8895',
+#     'http': '58.218.92.81:6774',
+#     'http': '58.218.92.171:2105',
+#     'http': '58.218.92.171:6379',
+#     'http': '58.218.92.171:3828',
+#     'http': '58.218.92.81:2815',
+#     'http': '58.218.92.174:4580',
+#     'http': '58.218.92.173:9966',
+#     'http': '58.218.92.173:8415',
+#     'http': '58.218.92.170:6208',
+#     'http': '58.218.92.172:3539',
+#     'http': '58.218.92.170:7980',
+#     'http': '58.218.92.172:4487',
+#     'http': '58.218.92.167:9754',
+#     'http': '58.218.92.86:9958',
+#     'http': '58.218.92.167:9660',
+#     'http': '58.218.92.86:9547',
+#     'http': '58.218.92.167:9660',
+#     'http': '58.218.92.86:9547',
+#     'http': '58.218.92.167:9754',
+#     'http': '58.218.92.86:9958'
+# }
+'''head 信息'''
+head = {
+    'User-Agent': 'Mozilla/5.0 (Windows NT 6.1; WOW64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/50.0.2661.102 Safari/537.36',
+    'Connection': 'keep-alive'}
+'''http://icanhazip.com会返回当前的IP地址'''
+list = []
+for i in range(0, 7):
+    http = 'https://www.xicidaili.com/wt/{}'.format(i)
+    print(http)
+    html = requests.get('https://www.xicidaili.com/wt/1', headers=head)
+    content = etree.HTML(html.text)
+    for node in content.xpath('//table[@id="ip_list"]//tr'):
+       ip = node.xpath('string(./td[2])') + ':' + node.xpath('string(./td[3])')
+       if ip != ':':
+        proxies = {
+            'http': ip,
+            'https': ip
+        }
         try:
-            # 连接数据库
-            self.isConnectionOpen()
-            # 创建游标
-            global cursor
-            cursor = self.__db.cursor()
-            # sql命令
-            sql = "insert into jd(book_name,witer_name,url,product_count,dt) value(%s,%s,%s,%s,%s)"
-            # 执行sql命令
-            cursor.execute(sql, (book_name, witer_name, url, product_count, dt))
+            html = requests.get('https://search.jd.com/Search?keyword=%E6%9E%81%E7%AE%80%E7%94%9F%E6%B4%BB%E4%B9%A6&enc=utf-8', headers=head, proxies=proxies)
         except Exception as e:
-            print(e)
-        finally:
-            # 关闭游标
-            cursor.close()
-            # 提交
-            self.__db.commit()
-            # 关闭数据库连接
-            self.__db.close()
-
-
-def get_html(urls, headers, bm):
-    response = requests.get(urls, timeout=30, headers=headers)
-    if bm == 'GBK':
-        response.encoding = 'GBK'
-    else:
-        response.encoding = 'utf-8'
-    # 页面源码
-    html = response.text
-    print(html)
-    return html
-
-
-if __name__ == '__main__':
-    head = {
-        'user-agent': 'Mozilla/5.0 (Windows NT 6.1; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) '
-                      'Chrome/66.0.3359.139 Safari/537.36',
-    }
-    i = 1
-    for i in range(1, 12, 2):
-        url = "https://search.jd.com/Search?keyword=%E6%9E%81%E7%AE%80%E7%94%9F%E6%B4%BB%E4%B9%A6&enc=utf-8" \
-              "&psort=4&page=" + str(i)
-        get_html(url, head, '1')
-        i = 1 + i
+            content
+        if html.status_code == 200:
+            print(ip)
