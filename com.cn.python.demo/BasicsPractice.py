@@ -9,7 +9,7 @@ if __name__ == '__main__':
                       'Chrome/66.0.3359.139 Safari/537.36',
     }
     # url = "https://item.jd.com/11584281.html"
-    url = "https://sclub.jd.com/comment/productCommentSummaries.action?referenceIds=11953406"
+    url = "https://www.douban.com/group/minimalists/discussion?start=25"
     urls = "https://sclub.jd.com/comment/productCommentSummaries.action?referenceIds=11584281"
     # https://sclub.jd.com/comment/productCommentSummaries.action?referenceIds=11584281&callback=jQuery4393158&_=1574165521492
     response = requests.get(url, timeout=30, headers=head)
