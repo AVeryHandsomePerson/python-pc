@@ -1,58 +1,50 @@
+import asyncio
 
-import requests
 from lxml import etree
+from pyppeteer import launch
+from selenium.webdriver.common.keys import Keys
 
-# proxies = {
-#     'http': '58.218.92.81:8314',
-#     'http': '58.218.92.173:5257',
-#     'http': '58.218.92.173:2023',
-#     'http': '58.218.92.172:8842',
-#     'http': '58.218.92.172:7091',
-#     'http': '58.218.92.171:8124',
-#     'http': '58.218.92.170:3671',
-#     'http': '58.218.92.81:8895',
-#     'http': '58.218.92.81:6774',
-#     'http': '58.218.92.171:2105',
-#     'http': '58.218.92.171:6379',
-#     'http': '58.218.92.171:3828',
-#     'http': '58.218.92.81:2815',
-#     'http': '58.218.92.174:4580',
-#     'http': '58.218.92.173:9966',
-#     'http': '58.218.92.173:8415',
-#     'http': '58.218.92.170:6208',
-#     'http': '58.218.92.172:3539',
-#     'http': '58.218.92.170:7980',
-#     'http': '58.218.92.172:4487',
-#     'http': '58.218.92.167:9754',
-#     'http': '58.218.92.86:9958',
-#     'http': '58.218.92.167:9660',
-#     'http': '58.218.92.86:9547',
-#     'http': '58.218.92.167:9660',
-#     'http': '58.218.92.86:9547',
-#     'http': '58.218.92.167:9754',
-#     'http': '58.218.92.86:9958'
-# }
-'''head 信息'''
-head = {
-    'User-Agent': 'Mozilla/5.0 (Windows NT 6.1; WOW64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/50.0.2661.102 Safari/537.36',
-    'Connection': 'keep-alive'}
-'''http://icanhazip.com会返回当前的IP地址'''
-list = []
-for i in range(0, 7):
-    http = 'https://www.xicidaili.com/wt/{}'.format(i)
-    print(http)
-    html = requests.get('https://www.xicidaili.com/wt/1', headers=head)
-    content = etree.HTML(html.text)
-    for node in content.xpath('//table[@id="ip_list"]//tr'):
-       ip = node.xpath('string(./td[2])') + ':' + node.xpath('string(./td[3])')
-       if ip != ':':
-        proxies = {
-            'http': ip,
-            'https': ip
-        }
-        try:
-            html = requests.get('https://search.jd.com/Search?keyword=%E6%9E%81%E7%AE%80%E7%94%9F%E6%B4%BB%E4%B9%A6&enc=utf-8', headers=head, proxies=proxies)
-        except Exception as e:
-            content
-        if html.status_code == 200:
-            print(ip)
+
+async def main():
+    # headless参数设为False，则变成有头模式
+    browser = await launch(
+        # headless=False
+    )
+
+    page = await browser.newPage()
+
+    # 设置页面视图大小
+    await page.setViewport(viewport={'width': 1280, 'height': 800})
+
+    # 是否启用JS，enabled设为False，则无渲染效果
+    await page.setJavaScriptEnabled(enabled=True)
+
+    await page.goto('https://www.zhihu.com/topic/20118576/hot')
+
+    # 打印页面cookies.send_keys(Keys.HOME)
+    # print(await page.cookies())
+
+    # 打印页面文本
+    # print(await page.content())
+    r = await page.content()
+    content = etree.HTML(r)
+    theme = content.xpath('//*[@id="TopicMain"]/div[3]/div/div/div/div/div/h2/div/a/text()')
+    print(theme)
+    # 打印当前页标题
+    # print(await page.xpath('//*[@id="TopicMain"]/div[1]/div/div/div/div/div/h2/div/a/text()'))
+
+    # 抓取新闻标题
+    # title_elements = await page.xpath('//div[@class="title-box"]/a')
+    # for item in title_elements:
+    #     # 获取文本
+    #     title_str = await (await item.getProperty('textContent')).jsonValue()
+    #     print(await item.getProperty('textContent'))
+    #     # 获取链接
+    #     title_link = await (await item.getProperty('href')).jsonValue()
+    #     print(title_str)
+    #     print(title_link)
+    #
+    # # 关闭浏览器
+    await browser.close()
+
+asyncio.run(main())
