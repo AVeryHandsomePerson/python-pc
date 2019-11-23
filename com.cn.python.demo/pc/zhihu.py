@@ -11,7 +11,7 @@ r = requests.get(url, headers=kv)  # 获取网页
 print(r.text)
 
 content = etree.HTML(r.text)
-theme = content.xpath('//*[@id="TopicMain"]/div[6]/div/div/div/div/div/h2/div/a/text()')
+theme = content.xpath('//*[@id="TopicMain"]/div/div/div/div/div/div/h2/div/a/text()')
 # //*[@id="SearchMain"]/div/div/div/div/div[1]/div/div/div/div[1]/div/a
 # //*[@id="TopicMain"]/div[3]/div/div/div/div[2]/div/h2/a
 # //*[@id="TopicMain"]/div[3]/div/div/div/div[1]/div/h2/div/a
