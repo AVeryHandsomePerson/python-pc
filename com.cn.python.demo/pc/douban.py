@@ -7,27 +7,7 @@ import time
 import jieba as jieba
 import pymysql
 import requests
-
-
-def read_db():
-    head = {
-        'user-agent': 'Mozilla/5.0 (Windows NT 6.1; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) '
-                      'Chrome/66.0.3359.139 Safari/537.36',
-    }
-    list = []
-    for f in range(0, 600, 25):
-        url = "https://www.douban.com/group/minimalists/discussion?start=%s" % (f)
-        # 模拟浏览器发送http请求
-        response = requests.get(url, timeout=30, headers=head)
-        response.encoding = 'utf-8'
-        # 页面源码
-        html = response.text
-        dl = re.findall(r'td class="title">([\d\D]*?)</td>', html, re.S)
-        for i in range(0, dl.__len__()):
-            chapter_info_lists = re.findall(r'title="([\d\D]*?)" class="', dl[i], re.S)
-            list.append(chapter_info_lists[0])
-        time.sleep(10)
-    return list
+from lxml import etree
 
 
 class DatabaseAccess():
@@ -73,26 +53,61 @@ class DatabaseAccess():
             self.__db.close()
 
 
-if __name__ == '__main__':
-    words = jieba.lcut(str(read_db()))
-    stopwords = [line.strip() for line in
-                 open("/root/file/百度停用词表.txt", encoding="utf-8").readlines()]
-    counts = {}
-    lists = []
-    jieba.load_userdict("/root/file/fenci.txt")
-    for word in words:
-        # 不在停用词表中
-        if word not in stopwords:
-            # 不统计字数为一的词
-            if len(word) == 1:
-                continue
-            else:
-                lists.append(word)
-                # counts[word] = counts.get(word,0) + 1
-    word_counts = collections.Counter(lists)
-    word_counts_top10 = word_counts.most_common(len(word_counts))
-    dt = time.strftime("%Y-%m-%d", time.localtime())
+def read_db():
     ben = DatabaseAccess()
-    print("开始写入")
-    for i in word_counts_top10:
-        ben.linesinsert(i[0], i[1], dt)
+    head = {
+        'user-agent': 'Mozilla/5.0 (Windows NT 6.1; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) '
+                      'Chrome/66.0.3359.139 Safari/537.36',
+    }
+    dt = time.strftime("%Y-%m-%d", time.localtime())
+    #
+    for f in range(0, 600, 25):
+        url = "https://www.douban.com/group/minimalists/discussion?start=%s" % (f)
+        # 模拟浏览器发送http请求
+        response = requests.get(url, timeout=30, headers=head)
+        response.encoding = 'utf-8'
+        # 页面源码
+        html = response.text
+        jx = etree.HTML(html)
+        # chapter_number = re.findall(r'tbody([\d\D]*?)</tbody', html, re.S)
+        # print(chapter_number)//*[@id="content"]/div/div[1]/div[2]/table/tbody/tr[2]/td[1]/a
+
+        # // *[ @ id = "content"] / div / div[1] / div[2] / table / tbody / tr[2] / td[3]
+        # // *[ @ id = "content"] / div / div[1] / div[2] / table / tbody / tr[2] / td[1] / a
+        # dl = re.findall(r'td class="title">([\d\D]*?)</td>', html, re.S)
+        for i in range(2, 26):
+            chapter_info_lists = jx.xpath(
+                'string(//*[@id="content"]/div/div[1]/div[2]/table/tr[{}]/td[1])'.format(i)).replace(" ", "").replace(
+                "\n", "")
+            chapter_number = jx.xpath('string(//*[@id="content"]/div/div[1]/div[2]/table/tr[{}]/td[3])'.format(i))
+
+            print(chapter_info_lists, chapter_number)
+            ben.linesinsert(chapter_info_lists, chapter_number, dt)
+        time.sleep(20)
+
+
+if __name__ == '__main__':
+    read_db()
+    # words = jieba.lcut(str(read_db()))
+
+    # stopwords = [line.strip() for line in
+    #              open("/root/file/百度停用词表.txt", encoding="utf-8").readlines()]
+    # counts = {}
+    # lists = []
+    # jieba.load_userdict("/root/file/fenci.txt")
+    # for word in words:
+    #     # 不在停用词表中
+    #     if word not in stopwords:
+    #         # 不统计字数为一的词
+    #         if len(word) == 1:
+    #             continue
+    #         else:
+    #             lists.append(word)
+    #             # counts[word] = counts.get(word,0) + 1
+    # word_counts = collections.Counter(lists)
+    # word_counts_top10 = word_counts.most_common(len(word_counts))
+    #
+    # ben = DatabaseAccess()
+    # print("开始写入")
+    # for i in word_counts_top10:
+    #     ben.linesinsert(i[0], i[1], dt)

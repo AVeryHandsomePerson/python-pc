@@ -7,8 +7,6 @@ import time
 from lxml import etree
 
 
-
-
 class DatabaseAccess():
     # 初始化属性
     def __init__(self):
@@ -53,7 +51,7 @@ class DatabaseAccess():
 
 
 def get_html(urls, headers, bm):
-    response = requests.get(urls, timeout=100,  headers=headers)
+    response = requests.get(urls, timeout=100, headers=headers)
     if bm == 'GBK':
         response.encoding = 'GBK'
     else:

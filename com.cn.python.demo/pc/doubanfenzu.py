@@ -1,6 +1,7 @@
 # -*- coding: utf-8 -*-
 import json
 import re
+import time
 
 import pymysql
 from lxml import etree
@@ -53,35 +54,15 @@ class DatabaseAccess():
 def dob_fenzu(url, head):
     db = DatabaseAccess()
     response = requests.get(url, timeout=30, headers=head)
-    response.encoding = 'utf-8'
-    html = response.text
-    content = etree.HTML(html)
-    fz = content.xpath('//*[@id="content"]/div/div[1]/div[3]/div[2]/div/div[2]/div/h3/a/text()')
-    for i in range(1, len(fz) - 1):
-        fz_name = fz[i]
-        number = re.findall(r'\d+', content.xpath(
-            'string(//*[@id="content"]/div/div[1]/div[3]/div[2]/div[{}]/div[2]/div/div)'.format(i)))
-        print('{}==={}'.format(fz_name, number[0]))
-        db.linesinsert(fz_name, number[0])
-
-
-def jt_fz():
-    head = {
-        'user-agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) '
-                      'Chrome/78.0.3904.108 Safari/537.36',
-        'Referer': 'https://www.douban.com/search?cat=1019&q=%E5%B0%8F%E7%BB%84',
-        'Host': 'www.douban.com'
-    }
-    urls = "https://www.douban.com/j/search?q=%E6%9E%81%E7%AE%80%E7%94%9F%E6%B4%BB&start=20&cat=1019"
-    db = DatabaseAccess()
-    response = requests.get(urls, timeout=30, headers=head)
-    response.encoding = 'utf-8'
-    html = response.text.replace("'", "\"").replace("\\", "")
-    zf_names = re.findall(r'alt="([\d\D]*?)">', html, re.S)
-    arr_nuber = re.findall(r'<div class="info">([\d\D]*?)<', html, re.S)
-    for i in range(0, len(zf_names)):
-        # print(zf_names[i],re.findall(r'\d+',arr_nuber[i])[0])
-        db.linesinsert(zf_names[i], re.findall(r'\d+', arr_nuber[i])[0])
+    context = response.content.decode("utf-8")
+    html = json.loads(context)
+    print(html['more'])
+    if html['more']:
+        for i in html['items']:
+            zf_names = re.findall(r'alt="([\d\D]*?)">', i, re.S)
+            arr_nuber = re.findall(r'<div class="info">([\d\D]*?)<', i, re.S)
+            print(zf_names[0], re.findall(r'\d+', arr_nuber[0])[0])
+            db.linesinsert(zf_names[0], re.findall(r'\d+', arr_nuber[0])[0])
 
 
 if __name__ == '__main__':
@@ -91,7 +72,11 @@ if __name__ == '__main__':
         'Referer': 'https://www.douban.com/search?cat=1019&q=%E5%B0%8F%E7%BB%84',
         'Host': 'www.douban.com'
     }
-
-    url = "https://www.douban.com/search?cat=1019&q=%E6%9E%81%E7%AE%80%E7%94%9F%E6%B4%BB"
-    dob_fenzu(url, head)
-    jt_fz()
+    arr = ['%E6%9E%81%E7%AE%80', '%E6%96%AD%E8%88%8D%E7%A6%BB', '%E6%95%B4%E7%90%86', '%E7%AE%80%E6%9C%B4',
+           '%E4%B8%8D%E6%8C%81%E6%9C%89']
+    for name in arr:
+        for i in range(1, 6):
+            pag = (i - 1) * 20
+            url = "https://www.douban.com/j/search?q={}&start={}&cat=1019".format(name, i)
+            dob_fenzu(url, head)
+            time.sleep(20)
