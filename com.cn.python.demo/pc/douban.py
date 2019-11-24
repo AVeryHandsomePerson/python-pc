@@ -60,7 +60,7 @@ def read_db():
                       'Chrome/66.0.3359.139 Safari/537.36',
     }
     dt = time.strftime("%Y-%m-%d", time.localtime())
-    #
+    #豆瓣小组话题
     for f in range(0, 600, 25):
         url = "https://www.douban.com/group/minimalists/discussion?start=%s" % (f)
         # 模拟浏览器发送http请求
