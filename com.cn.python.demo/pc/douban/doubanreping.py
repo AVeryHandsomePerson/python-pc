@@ -39,9 +39,9 @@ class DatabaseAccess():
             global cursor
             cursor = self.__db.cursor()
             # sql命令
-            sql = "insert into db(word_tmp,number_t,dt) value(%s,%s,%s)"
+            sql = "insert into douban_theory(theory_namev,theory_number) value(%s,%s)"
             # 执行sql命令
-            cursor.execute(sql, (word_tmp, number, dt))
+            cursor.execute(sql, (word_tmp, number))
         except Exception as e:
             print(e)
         finally:
@@ -61,8 +61,8 @@ def read_db():
     }
     dt = time.strftime("%Y-%m-%d", time.localtime())
     #
-    for f in range(0, 600, 25):
-        url = "https://www.douban.com/group/minimalists/discussion?start=%s" % (f)
+    for f in range(0, 500, 25):
+        url = "https://www.douban.com/group/minimalists/discussion?start={}&type=essence".format(f)
         # 模拟浏览器发送http请求
         response = requests.get(url, timeout=30, headers=head)
         response.encoding = 'utf-8'
@@ -74,7 +74,6 @@ def read_db():
                 'string(//*[@id="content"]/div/div[1]/div[2]/table/tr[{}]/td[1])'.format(i)).replace(" ", "").replace(
                 "\n", "")
             chapter_number = jx.xpath('string(//*[@id="content"]/div/div[1]/div[2]/table/tr[{}]/td[3])'.format(i))
-
             print(chapter_info_lists, chapter_number)
             ben.linesinsert(chapter_info_lists, chapter_number, dt)
         time.sleep(20)
@@ -82,4 +81,3 @@ def read_db():
 
 if __name__ == '__main__':
     read_db()
-
